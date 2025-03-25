@@ -1,5 +1,5 @@
 const express = require("express");
-const { createTodo, updateTodo } = require("./types");
+const { createTodo, updateTodo, deleteTodo } = require("./types");
 const { todo } = require("./db");
 const cors = require("cors");
 const app = express();
@@ -55,6 +55,26 @@ app.put("/completed", async (req, res) => {
   );
   res.json({
     msg: "Todo marked as completed!",
+  });
+});
+
+app.delete("/delete", async (req, res) => {
+  const deletePayload = req.body;
+  const parsedPayload = deleteTodo.safeParse(deletePayload);
+
+  if (!parsedPayload.success) {
+    res.status(411).json({
+      msg: "You have entered wrong input",
+    });
+    return;
+  }
+
+  const deletedTodo = await todo.findByIdAndDelete({
+    _id: req.body.id,
+  });
+
+  res.json({
+    deletedTodo,
   });
 });
 
